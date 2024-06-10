@@ -1,0 +1,61 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Report {
+  createdAt DateTime @default(now())
+  dataset   Dataset? @relation(fields: [datasetId], references: [id])
+  datasetId String?  @db.ObjectId
+  file      Json?
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  updatedAt DateTime @updatedAt
+}
+
+model Dataset {
+  analyses   Analysis[]
+  createdAt  DateTime           @default(now())
+  id         String             @id @default(auto()) @map("_id") @db.ObjectId
+  name       String?
+  reports    Report[]
+  status     EnumDatasetStatus?
+  updatedAt  DateTime           @updatedAt
+  uploadedAt DateTime?
+  user       User?              @relation(fields: [userId], references: [id])
+  userId     String?            @db.ObjectId
+}
+
+model Analysis {
+  createdAt DateTime               @default(now())
+  dataset   Dataset?               @relation(fields: [datasetId], references: [id])
+  datasetId String?                @db.ObjectId
+  id        String                 @id @default(auto()) @map("_id") @db.ObjectId
+  result    Json?
+  typeField EnumAnalysisTypeField?
+  updatedAt DateTime               @updatedAt
+}
+
+model User {
+  createdAt DateTime  @default(now())
+  datasets  Dataset[]
+  email     String?   @unique
+  firstName String?
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  lastName  String?
+  password  String
+  roles     Json
+  updatedAt DateTime  @updatedAt
+  username  String    @unique
+}
+
+enum EnumDatasetStatus {
+  Option1
+}
+
+enum EnumAnalysisTypeField {
+  Option1
+}
